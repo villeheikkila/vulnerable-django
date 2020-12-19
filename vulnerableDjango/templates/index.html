@@ -1,0 +1,50 @@
+{% extends 'base.html' %} {% load widget_tweaks %} {% block content %}
+<section class="hero is-fullheight">
+    <nav class="navbar" role="navigation" aria-label="main navigation">
+        <div class="navbar-brand is-centered">
+            <strong class="is-centered">Insecure Chatbox</strong>
+        </div>
+        <div class="navbar-end">
+        <div class="navbar-item">
+            <div class="buttons">
+                <form action='logout/' method="POST">
+                    {% csrf_token %}
+                    <input type="submit" value="Logout" class="button is-danger"/>
+                </form>
+            </div>
+        </div>
+    </nav>
+
+
+    <div class="container is-flex is-flex-direction-column">
+        <h1 class="is-size-1 is-uppercase">Chatbox</h1>
+		
+        {% for msg in msgs %}
+            <strong class="select">{{msg.sender.username}} : {{msg.receiver.username}}</strong>
+            <!-- XSS flaw here -->
+            {{msg.message|safe}}
+		{% endfor %}
+
+        <form class="is-flex is-flex-direction-column" action='add/' method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="field">
+                Receiver:
+                <div class="control">
+                    <div class="select is-primary">
+                        <select name="receiver">
+                            {% for user in users %}
+                                <option value="{{user.username}}">{{user.username}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+			<textarea name="message" cols="40" rows="4"></textarea>
+            
+            <input class="button is-primary" type="submit" value="Send"/>
+        </form>
+  </div>
+</section>
+{% endblock %}
